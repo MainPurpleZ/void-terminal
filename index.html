@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOID</title>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glitch-text {
+            font-size: 2rem;
+            cursor: pointer;
+            position: relative;
+            transition: opacity 0.2s;
+        }
+
+        .glitch-text:hover {
+            text-shadow: 2px 0 #ff0000, -2px 0 #00ff00;
+        }
+
+        #file-upload {
+            display: none;
+        }
+
+        #auth-layer {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            background: #000;
+            border: 1px solid #333;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        input {
+            background: #000;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            outline: none;
+            width: 200px;
+            text-align: center;
+        }
+
+        input:focus {
+            border-color: #888;
+        }
+
+        button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #ccc;
+        }
+
+        /* Success Message */
+        #final-msg {
+            display: none;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: #fff;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 10px white; }
+            100% { opacity: 0.8; }
+        }
+
+        .error {
+            color: #ff3333;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            min-height: 1em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+
+        <div id="step-file">
+            <div class="glitch-text" id="file-trigger">FILE.</div>
+            <input type="file" id="file-upload" accept="*/*">
+            <div class="error" id="file-error"></div>
+        </div>
+
+
+        <div id="auth-layer">
+            <div>IDENTITY VERIFICATION REQUIRED</div>
+            <input type="text" id="input-name" placeholder="NAME" autocomplete="off">
+            <input type="password" id="input-pass" placeholder="PASSWORD" autocomplete="off">
+            <button id="btn-login">ACCESS</button>
+            <div class="error" id="auth-error"></div>
+        </div>
+
+        <div id="final-msg"></div>
+    </div>
+
+    <script>
+        // Configuration
+        const TARGET_FILENAME = "TbRtYzD.png";
+        const TARGET_CONTENT = "01001101 01000100 01000101 01110111 01001101 01010100 01000001 01110111 01001101 01010100 01000101 01100111 01001101 01000100 01000101 01110111 01001101 01000100 01000101 01111000 01001101 01010100 01000101 01100111 01001101 01000100 01000101 01110111 01001101 01000100 01000101 01111000 01001101 01010100 01000001 01100111 01001101 01000100 01000001 01111000 01001101 01000100 01000001 01110111 01001101 01000100 01000001 01100111 01001101 01000100 01000101 01110111 01001101 01000100 01000101 01110111 01001101 01000100 01000101 01100111 01001101 01000100 01000101 01110111 01001101 01010100 01000001 01110111 01001101 01010100 01000101 01100111 01001101 01000100 01000001 01111000 01001101 01000100 01000001 01110111 01001101 01000100 01000001 01100111 01001101 01000100 01000101 01110111 01001101 01010100 01000001 01111000 01001101 01000100 01000001 01100111 01001101 01000100 01000101 01110111 01001101 01000100 01000101 01110111 01001101 01000100 01000001 01100111 01001101 01000100 01000101 01110111 01001101 01000100 01000001 01110111 01001101 01000100 01000101 01100111 01001101 01000100 01000101 01110111 01001101 01010100 01000001 01111000 01001101 01000100 01000001 01100111 01001101 01000100 01000001 01111000 01001101 01000100 01000001 01110111 01001101 01000100 01000001 01100111 01001101 01000100 01000101 01110111 01001101 01010100 01000101 01110111 01001101 01000100 01000101 01100111 01001101 01000100 01000101 01110111 01001101 01000100 01000101 01111000 01001101 01010100 01000101 01100111 01001101 01000100 01000101 01110111 01001101 01010100 01000001 01111000 01001101 01000100 01000101 00111101";
+
+        // DOM Elements
+        const trigger = document.getElementById('file-trigger');
+        const fileInput = document.getElementById('file-upload');
+        const fileError = document.getElementById('file-error');
+        
+        const stepFile = document.getElementById('step-file');
+        const authLayer = document.getElementById('auth-layer');
+        const authError = document.getElementById('auth-error');
+        
+        const inputName = document.getElementById('input-name');
+        const inputPass = document.getElementById('input-pass');
+        const btnLogin = document.getElementById('btn-login');
+        
+        const finalMsg = document.getElementById('final-msg');
+
+        // Event Listeners
+        trigger.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', handleFileSelect);
+        btnLogin.addEventListener('click', handleLogin);
+
+        // Allow Enter key to submit login
+        inputPass.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            fileError.textContent = "";
+
+            if (!file) return;
+
+            // Check Filename
+            if (file.name !== TARGET_FILENAME) {
+                fileError.textContent = "INVALID FILENAME.";
+                return;
+            }
+
+            // Check Content
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result.trim();
+                // Normalize spaces to avoid copy-paste errors
+                const cleanContent = content.replace(/\s+/g, ' ');
+                const cleanTarget = TARGET_CONTENT.replace(/\s+/g, ' ');
+
+                if (cleanContent === cleanTarget) {
+                    // Success
+                    stepFile.style.display = 'none';
+                    authLayer.style.display = 'flex';
+                } else {
+                    fileError.textContent = "FILE CORRUPTED OR INVALID CONTENT.";
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function handleLogin() {
+            const name = inputName.value;
+            const pass = inputPass.value;
+            
+            const nameHash = btoa(name);
+            const passHash = btoa(pass);
+
+            if (nameHash === 'YWRtaW4=' && passHash === 'NDUzMg==') {
+                authLayer.style.display = 'none';
+                triggerSuccess();
+            } else {
+                authError.textContent = "ACCESS DENIED.";
+                inputPass.value = "";
+            }
+        }
+
+        function triggerSuccess() {
+            finalMsg.style.display = 'block';
+            finalMsg.textContent = "534220544446788775";
+
+            let countdown = 5;
+            
+            setTimeout(() => {
+                // Close simulation
+                document.body.innerHTML = "";
+                document.body.style.backgroundColor = "black";
+                
+                // Try to close window
+                try {
+                    window.close();
+                } catch(e) {
+                    // Fallback if browser blocks window.close()
+                }
+
+                // If window didn't close, show terminated message
+                setTimeout(() => {
+                    const term = document.createElement('div');
+                    term.textContent = "CONNECTION TERMINATED.";
+                    term.style.color = "#333";
+                    term.style.fontFamily = "Courier New";
+                    term.style.position = "absolute";
+                    term.style.top = "50%";
+                    term.style.left = "50%";
+                    term.style.transform = "translate(-50%, -50%)";
+                    document.body.appendChild(term);
+                }, 500);
+
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
